@@ -9,12 +9,13 @@
 #include "../OpenglObjects/SVAO.hpp"
 #include "../OpenglObjects/SVBO.hpp"
 #include "../OpenglObjects/SShaderProgram.hpp"
+#include "../SMath/SVec3f.hpp"
 
 
 
 namespace shm {
-    class SDrawable : private shm::SObject{
-        private:
+    class SDrawable : public shm::SObject{
+        protected:
 
         shm::SShaderProgram* shaderProgram = nullptr;
 
@@ -33,20 +34,44 @@ namespace shm {
             VAO.create();
             VBO.create();
 
+            glBindVertexArray(VAO.getId());
+            glBindBuffer(GL_ARRAY_BUFFER, VBO.getId());
+
+            VAO.bindVBO(VBO);
+
             VAO.setAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
             VAO.setAttrib(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, sizeof(float) * 3);
 
             VAO.enableAttrib(0);
             VAO.enableAttrib(1);
 
-            VAO.bindVBO(VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+        }
+
+
+        virtual void loadData(std::vector<float>& data) {
+            VBO.loadData(data, GL_STATIC_DRAW);
+        }
+
+
+        virtual void setColor(shm::SVec3f newColor) {
+            for (size_t i = 3; i < data.size(); i += 6) {
+                data[i] = newColor.getX();
+                data[i + 1] = newColor.getY();
+                data[i + 2] = newColor.getZ();
+            }
+
+            loadData(data);
         }
 
 
         virtual void draw() {
             shaderProgram->use();
             glBindVertexArray(VAO.getId());
-            glDrawArrays(GL_TRIANGLES, 0, data.size() / 2);
+            glDrawArrays(GL_TRIANGLES, 0, data.size() / 6);
+
+            std::cout << VAO.getId() << std::endl;
         }
 
 

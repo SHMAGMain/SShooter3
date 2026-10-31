@@ -13,7 +13,7 @@ namespace shm {
     class SVAO {
         private:
 
-        GLuint id = 0;
+        uint32_t id = 0;
 
         public:
 
@@ -34,7 +34,6 @@ namespace shm {
                 return; 
             }
 
-            glBindVertexArray(id);
             glVertexAttribPointer(index, count, type, norm, stride, (void*)pointer);
         }
 
@@ -44,7 +43,6 @@ namespace shm {
                 return; 
             }
 
-            glBindVertexArray(id);
             glBindBuffer(GL_VERTEX_ARRAY, vbo.getId());
         }
 
@@ -54,7 +52,6 @@ namespace shm {
                 return; 
             }
 
-            glBindVertexArray(id);
             glEnableVertexAttribArray(index);
         }
 
@@ -64,7 +61,6 @@ namespace shm {
                 return; 
             }
 
-            glBindVertexArray(id);
             glDisableVertexAttribArray(index);
         }
 
@@ -74,7 +70,7 @@ namespace shm {
         }
 
 
-        const GLuint& getId() {
+        const uint32_t& getId() {
             return id;
         }
     };

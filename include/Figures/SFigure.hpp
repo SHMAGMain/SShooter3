@@ -8,13 +8,13 @@
 
 
 namespace shm {
-    class SFigure : private shm::SDrawable {
+    class SFigure : public shm::SDrawable {
         private:
 
 
         public:
 
-        virtual ~SFigure();
+        virtual ~SFigure() {};
     };
 }
 

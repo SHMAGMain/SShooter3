@@ -14,7 +14,7 @@ namespace shm {
     class SVBO {
         private:
 
-        GLuint id = 0;
+        uint32_t id = 0;
 
         public:
 
@@ -35,7 +35,8 @@ namespace shm {
             }
 
             glBindBuffer(GL_ARRAY_BUFFER, id);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(data[0]) * sizeof(float), data.data(), usage);
+            glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), usage);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
         void loadData(float* data, uint32_t count, const GLenum& usage) {
@@ -46,10 +47,11 @@ namespace shm {
 
             glBindBuffer(GL_ARRAY_BUFFER, id);
             glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), data, usage);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
 
-        const GLuint& getId() {
+        const uint32_t& getId() {
             return id;
         }
     };

@@ -7,6 +7,7 @@
 #include "OpenglObjects/SVBO.hpp"
 #include "OpenglObjects/SShader.hpp"
 #include "OpenglObjects/SShaderProgram.hpp"
+#include "Figures/SSquare.hpp"
 
 
 
@@ -45,7 +46,7 @@ int main() {
     glewInit();
 
 
-    shm::SVAO svao;
+    /*shm::SVAO svao;
     svao.create();
 
     shm::SVBO svbo;
@@ -58,7 +59,7 @@ int main() {
     svao.enableAttrib(0);
     svao.enableAttrib(1);
     
-    svao.bindVBO(svbo);
+    svao.bindVBO(svbo);*/
 
 
     shm::SShader vertexShader;
@@ -84,14 +85,19 @@ int main() {
     shaderProgram.uniform1f(0, WINDOW_WIDTH / float(WINDOW_HEIGHT));
 
 
+    shm::SSquare square;
+    square.assignProgram(shaderProgram);
+    square.create();
+    square.setColor(shm::SVec3f(1.0f, 1.0f, 1.0f));
+
+
+
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         
-        shaderProgram.use();
-        glBindVertexArray(svao.getId());
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        square.draw();
 
 
         glfwSwapBuffers(window);

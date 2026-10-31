@@ -3,9 +3,15 @@
 
 
 
+#include "../SMath/STransform.hpp"
+
+
+
 namespace shm {
     class SObject {
-        private:
+        protected:
+
+        shm::STransform transform;
 
         public:
 
