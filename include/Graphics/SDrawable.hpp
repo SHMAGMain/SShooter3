@@ -14,7 +14,7 @@
 
 
 namespace shm {
-    class SDrawable : public shm::SObject{
+    class SDrawable : public shm::SObject {
         protected:
 
         shm::SShaderProgram* shaderProgram = nullptr;
@@ -30,7 +30,9 @@ namespace shm {
             shaderProgram = &program;
         }
 
-        virtual void create() {
+        void create() override {
+            shm::SObject::create();
+
             VAO.create();
             VBO.create();
 
@@ -50,6 +52,15 @@ namespace shm {
         }
 
 
+        virtual void updateMatrixes() {
+            transform.updateMatrix();
+
+            shaderProgram->use();
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram->getId(), "model"), 1, GL_FALSE, transform.getMatrixModel().getData());
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram->getId(), "mNormal"), 1, GL_FALSE, transform.getMatrixNormal().getData());
+        }
+
+
         virtual void loadData(std::vector<float>& data) {
             VBO.loadData(data, GL_STATIC_DRAW);
         }
@@ -57,9 +68,9 @@ namespace shm {
 
         virtual void setColor(shm::SVec3f newColor) {
             for (size_t i = 3; i < data.size(); i += 6) {
-                data[i] = newColor.getX();
-                data[i + 1] = newColor.getY();
-                data[i + 2] = newColor.getZ();
+                data[i] = newColor.x;
+                data[i + 1] = newColor.y;
+                data[i + 2] = newColor.z;
             }
 
             loadData(data);
@@ -70,8 +81,6 @@ namespace shm {
             shaderProgram->use();
             glBindVertexArray(VAO.getId());
             glDrawArrays(GL_TRIANGLES, 0, data.size() / 6);
-
-            std::cout << VAO.getId() << std::endl;
         }
 
 

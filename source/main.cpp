@@ -1,4 +1,5 @@
 #include <vector>
+#include <random>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
@@ -8,22 +9,20 @@
 #include "OpenglObjects/SShader.hpp"
 #include "OpenglObjects/SShaderProgram.hpp"
 #include "Figures/SSquare.hpp"
+#include "SMath/SVec2f.hpp"
+#include "Graphics/SWindow.hpp"
+#include "Meshes/SCube.hpp"
+#include "SMath/STransform.hpp"
 
 
 
-const uint32_t WINDOW_WIDTH = 800;
-const uint32_t WINDOW_HEIGHT = 600;
+const uint32_t WINDOW_WIDTH = 1000;
+const uint32_t WINDOW_HEIGHT = 800;
 
 
 
-float vertices[] = {
-    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-    0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-};
+shm::SWindow window;
+
 
 
 const char* fragmentShaderSource = "#version 330 core\n"
@@ -38,33 +37,20 @@ const char* fragmentShaderSource = "#version 330 core\n"
 int main() {
     glfwInit();
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Window", 0, 0);
+    window.create(WINDOW_WIDTH, WINDOW_HEIGHT, "SHM-SShooter3");
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window.get());
 
     glewExperimental = true;
     glewInit();
 
+    glEnable(GL_DEPTH_TEST);
 
-    /*shm::SVAO svao;
-    svao.create();
-
-    shm::SVBO svbo;
-    svbo.create();
-    svbo.loadData(vertices, 36, GL_STATIC_DRAW);
-    
-    svao.setAttrib(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-    svao.setAttrib(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 3 * sizeof(float));
-    
-    svao.enableAttrib(0);
-    svao.enableAttrib(1);
-    
-    svao.bindVBO(svbo);*/
 
 
     shm::SShader vertexShader;
     vertexShader.create(GL_VERTEX_SHADER);
-    vertexShader.loadSourceAndCompile("res/shaders/VertexShader.versh");
+    vertexShader.loadSourceAndCompile("res/shaders/PerVertexShader.versh");
 
     shm::SShader fragmentShader;
     fragmentShader.create(GL_FRAGMENT_SHADER);
@@ -82,25 +68,90 @@ int main() {
     fragmentShader.destroy();
 
 
-    shaderProgram.uniform1f(0, WINDOW_WIDTH / float(WINDOW_HEIGHT));
+
+    shm::SMatrix4x4 matrixPerspective;
+    matrixPerspective.toPerspective();
+
+    shaderProgram.uniform1f(glGetUniformLocation(shaderProgram.getId(), "ratio"), WINDOW_WIDTH / float(WINDOW_HEIGHT));
+    shaderProgram.uniform2f(glGetUniformLocation(shaderProgram.getId(), "winSize"), WINDOW_WIDTH, WINDOW_HEIGHT);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getId(), "per"), 1, GL_FALSE, matrixPerspective.getData());
 
 
-    shm::SSquare square;
-    square.assignProgram(shaderProgram);
-    square.create();
-    square.setColor(shm::SVec3f(1.0f, 1.0f, 1.0f));
+
+    int count = 5;
+
+
+    std::vector<shm::SSquare> squares;
+
+    for (size_t i = 0; i < count; i++) {
+        shm::SSquare s;
+        s.assignProgram(shaderProgram);
+        s.transform.setScale(0.01f, 0.01f, 0);
+
+        squares.push_back(s);
+    }
+
+    for (shm::SSquare& square : squares) {
+        square.create();
+
+        square.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
+    }
 
 
 
-    while (!glfwWindowShouldClose(window)) {
+    std::vector<shm::SVec2f> forces(count);
+
+    std::random_device randev;
+    std::mt19937 gen(randev());
+    std::uniform_real_distribution<float> dist(-0.012f, 0.012f);
+
+    std::uniform_real_distribution<float> dist2(0, 360);
+
+    for (size_t i = 0; i < count; i++) {
+        forces[i] = shm::SVec2f(dist(gen), dist(gen));
+
+        squares[i].transform.addRotation(0, 0, dist2(gen));
+        squares[i].transform.addPosition(dist(gen) * 0.5f, dist(gen) * 0.5f, 0);
+    }
+
+
+    shm::SCube cube;
+    cube.assignProgram(shaderProgram);
+    cube.create();
+    cube.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
+    cube.transform.setScale(0.8f, 0.01f, 0.8f);
+    cube.transform.setPosition(0, -0.1f, 1.0f);
+
+    float t = 0;
+
+
+    while (!glfwWindowShouldClose(window.get())) {
         glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        
-        square.draw();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        glfwSwapBuffers(window);
+
+        /*for (size_t i = 0; i < count; i++) {
+            squares[i].transform.addPosition(shm::SVec3f(forces[i].x, forces[i].y, 0));
+            forces[i].x *= 0.98f;
+            forces[i].y *= 0.98f;
+
+            squares[i].transform.addRotation(0, 0, std::sqrt(forces[i].x * forces[i].x + forces[i].y * forces[i].y) * 200);
+
+            squares[i].updateMatrixModel();
+
+            squares[i].draw();
+        }*/
+
+        //t += 0.05f;
+        //cube.transform.addPosition(std::cos(t) * 0.008f, 0, 0);
+        cube.transform.addRotation(0, 1, 0);
+        cube.updateMatrixes();
+        cube.draw();
+
+
+
+        glfwSwapBuffers(window.get());
         glfwPollEvents();
     }
 

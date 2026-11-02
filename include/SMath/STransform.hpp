@@ -4,6 +4,7 @@
 
 
 #include "SVec3f.hpp"
+#include "SMatrix4x4.hpp"
 
 
 
@@ -15,6 +16,10 @@ namespace shm {
         shm::SVec3f rotation;
         shm::SVec3f scale;
 
+        shm::SMatrix4x4 model;
+        shm::SMatrix4x4 t;
+        shm::SMatrix4x4 normal;
+
         public:
 
         STransform() {}
@@ -24,6 +29,46 @@ namespace shm {
         STransform(const shm::SVec3f& position, const shm::SVec3f& rotation) : position(position), rotation(rotation) {}
 
         STransform(const shm::SVec3f& position, const shm::SVec3f& rotation, const shm::SVec3f& scale) : position(position), rotation(rotation), scale(scale) {}
+
+
+        void updateMatrix() {
+            shm::SMatrix4x4 s;
+
+            shm::SMatrix4x4 rx;
+            shm::SMatrix4x4 ry;
+            shm::SMatrix4x4 rz;
+
+            shm::SMatrix4x4 rxyz;
+
+            t.toTranslate(position.x, position.y, position.z);
+            s.toScale(scale.x * 2.0f, scale.y * 2.0f, scale.z * 2.0f);
+
+            rx.toRotX(rotation.x);
+            ry.toRotY(rotation.y);
+            rz.toRotZ(rotation.z);
+
+            rxyz = shm::SMatrix4x4::mul(rz, shm::SMatrix4x4::mul(ry, rx));
+
+            model = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s));
+            normal = rxyz;
+        }
+
+        void updateOnlyMatrixPosition() {
+            t.toTranslate(position.x, position.y, position.z);
+        }
+        
+
+        shm::SMatrix4x4& getMatrixModel() {
+            return model;
+        }
+
+        shm::SMatrix4x4& getMatrixNormal() {
+            return normal;
+        }
+
+        shm::SMatrix4x4& getMatrixPosition() {
+            return t;
+        }
 
 
         void setPosition(float x, float y, float z) {

@@ -1,0 +1,30 @@
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec3 aColor;
+
+uniform float ratio;
+uniform vec2 winSize;
+
+uniform mat4 model;
+uniform mat4 cam;
+uniform mat4 per;
+uniform mat4 mNormal;
+
+out vec3 color;
+
+void main()
+{
+    vec4 v = per * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    v.y *= ratio;
+
+    vec4 n = mNormal * vec4(aNormal, 1.0f);
+    vec3 normal = vec3(n.x, n.y, n.z);
+
+    vec3 lightDir = normalize(vec3(2, 3, 1));
+    float a = dot(lightDir, normal);
+
+    gl_Position = v;
+    color = clamp(aColor * a, 0, 1);
+}

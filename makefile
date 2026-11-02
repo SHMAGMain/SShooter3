@@ -18,7 +18,9 @@ OBJ_DIR      := $(BUILD_DIR)/obj
 
 # --- Поиск файлов ---
 # Все .cpp из source (рекурсивно)
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+SRCS := $(call rwildcard,$(SRC_DIR),*.cpp)
 
 # Преобразуем пути source/... -> build/obj/... .o
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))

@@ -12,8 +12,6 @@ namespace shm {
     class SSquare : public shm::SFigure {
         private:
 
-        float size = 1.0f;
-
         public:
 
         void create() override {
@@ -22,14 +20,12 @@ namespace shm {
             data.resize(36);
 
 
-            float halfSize = size * 0.5f;
-
-            data[0] = -halfSize; data[1] = -halfSize; data[2] = 0.0f;
-            data[6] = halfSize; data[7] = -halfSize; data[8] = 0.0f;
-            data[12] = halfSize; data[13] = halfSize; data[14] = 0.0f;
-            data[18] = halfSize; data[19] = halfSize; data[20] = 0.0f;
-            data[24] = -halfSize; data[25] = halfSize; data[26] = 0.0f;
-            data[30] = -halfSize; data[31] = -halfSize; data[32] = 0.0f;
+            data[0] = -0.5f; data[1] = -0.5f; data[2] = 1.0f;
+            data[6] = 0.5f; data[7] = -0.5f; data[8] = 1.0f;
+            data[12] = 0.5f; data[13] = 0.5f; data[14] = 1.0f;
+            data[18] = 0.5f; data[19] = 0.5f; data[20] = 1.0f;
+            data[24] = -0.5f; data[25] = 0.5f; data[26] = 1.0f;
+            data[30] = -0.5f; data[31] = -0.5f; data[32] = 1.0f;
 
             loadData(data);
         }

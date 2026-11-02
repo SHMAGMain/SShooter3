@@ -24,13 +24,13 @@ namespace shm {
                 id = glCreateShader(type);
             }
             else {
-                std::cout << "ERR: shader has already been created;" << std::endl;
+                std::cout << "ERR: SShader: shader has already been created;" << std::endl;
             }
         }
 
         void loadSourceAndCompile(const std::string& path) {
             if (!id) {
-                std::cerr << "ERR: shader is not created;" << std::endl;
+                std::cerr << "ERR: SShader: shader is not created;" << std::endl;
             }
 
 
@@ -62,14 +62,16 @@ namespace shm {
 
                     glGetShaderInfoLog(id, 512, 0, log);
 
-                    std::cerr << "ERR: cannot compile shader; LOG: " << log << std::endl;
+                    std::cerr << "ERR: SShader: cannot compile shader; LOG: " << log << std::endl;
                 }
                 else {
-                    std::cout << "OUT: shader compile is success;" << std::endl;
+                    std::cout << "OUT: SShader: shader compile is success;" << std::endl;
                 }
+
+                file.close();
             }
             else {
-                std::cerr << "ERR: cannot open file;" << std::endl;
+                std::cerr << "ERR: SShader: cannot open file;" << std::endl;
             }
         }
 

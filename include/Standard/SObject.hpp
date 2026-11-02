@@ -9,11 +9,15 @@
 
 namespace shm {
     class SObject {
-        protected:
+        public:
 
         shm::STransform transform;
 
-        public:
+
+
+        virtual void create() {}
+
+
 
         virtual ~SObject() = default;
     };

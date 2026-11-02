@@ -36,9 +36,25 @@ namespace shm {
             glUniform1f(location, f);
         }
 
+        void uniform2f(GLuint location, float x, float y) {
+            use();
+
+            glUniform2f(location, x, y);
+        }
+
 
         void use() {
+            if (!id) {
+                std::cout << "ERR: shader program is not created;" << std::endl;
+                return;
+            }
+
             glUseProgram(id);
+        }
+
+
+        const GLuint& getId() {
+            return id;
         }
     };
 }
