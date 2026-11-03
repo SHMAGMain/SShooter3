@@ -53,7 +53,7 @@ namespace shm {
 
 
         virtual void updateMatrixes() {
-            transform.updateMatrix();
+            transform.updateMatrixes();
 
             shaderProgram->use();
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram->getId(), "model"), 1, GL_FALSE, transform.getMatrixModel().getData());

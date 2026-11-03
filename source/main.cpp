@@ -13,6 +13,7 @@
 #include "Graphics/SWindow.hpp"
 #include "Meshes/SCube.hpp"
 #include "SMath/STransform.hpp"
+#include "Standard/SCamera.hpp"
 
 
 
@@ -119,15 +120,37 @@ int main() {
     cube.assignProgram(shaderProgram);
     cube.create();
     cube.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
-    cube.transform.setScale(0.8f, 0.01f, 0.8f);
-    cube.transform.setPosition(0, -0.1f, 1.0f);
+    cube.transform.setScale(0.1f, 0.1f, 0.1f);
 
     float t = 0;
 
 
-    while (!glfwWindowShouldClose(window.get())) {
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+    shm::SCamera camera;
+
+
+
+    bool isWindowClosed = false;
+
+    while (!glfwWindowShouldClose(window.get()) && !isWindowClosed) {
+        glClearColor(0.1f, 0.1f, 0.08f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+        if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) isWindowClosed = true;
+
+
+
+        if (glfwGetKey(window.get(), GLFW_KEY_UP)) camera.transform.addRotation(1, 0, 0);
+        if (glfwGetKey(window.get(), GLFW_KEY_DOWN)) camera.transform.addRotation(-1, 0, 0);
+        if (glfwGetKey(window.get(), GLFW_KEY_RIGHT)) camera.transform.addRotation(0, 1, 0);
+        if (glfwGetKey(window.get(), GLFW_KEY_LEFT)) camera.transform.addRotation(0, -1, 0);
+
+        camera.updateController(window);
+
+        glUseProgram(shaderProgram.getId());
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getId(), "view"), 1, GL_FALSE, camera.transform.getMatrixView().getData());
 
 
 
@@ -143,9 +166,9 @@ int main() {
             squares[i].draw();
         }*/
 
-        //t += 0.05f;
+        t += 0.05f;
         //cube.transform.addPosition(std::cos(t) * 0.008f, 0, 0);
-        cube.transform.addRotation(0, 1, 0);
+        //cube.transform.addRotation(1, 1, 1);
         cube.updateMatrixes();
         cube.draw();
 

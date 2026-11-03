@@ -18,7 +18,9 @@ namespace shm {
 
         shm::SMatrix4x4 model;
         shm::SMatrix4x4 t;
+        shm::SMatrix4x4 rxyz;
         shm::SMatrix4x4 normal;
+        shm::SMatrix4x4 view;
 
         public:
 
@@ -31,23 +33,13 @@ namespace shm {
         STransform(const shm::SVec3f& position, const shm::SVec3f& rotation, const shm::SVec3f& scale) : position(position), rotation(rotation), scale(scale) {}
 
 
-        void updateMatrix() {
+        void updateMatrixes() {
             shm::SMatrix4x4 s;
-
-            shm::SMatrix4x4 rx;
-            shm::SMatrix4x4 ry;
-            shm::SMatrix4x4 rz;
-
-            shm::SMatrix4x4 rxyz;
 
             t.toTranslate(position.x, position.y, position.z);
             s.toScale(scale.x * 2.0f, scale.y * 2.0f, scale.z * 2.0f);
 
-            rx.toRotX(rotation.x);
-            ry.toRotY(rotation.y);
-            rz.toRotZ(rotation.z);
-
-            rxyz = shm::SMatrix4x4::mul(rz, shm::SMatrix4x4::mul(ry, rx));
+            updateOnlyMatrixRotation();
 
             model = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s));
             normal = rxyz;
@@ -55,6 +47,38 @@ namespace shm {
 
         void updateOnlyMatrixPosition() {
             t.toTranslate(position.x, position.y, position.z);
+        }
+
+        void updateOnlyMatrixView() {
+            view.toTranslate(-position.x, -position.y, -position.z);
+            
+            updateOnlyMatrixRotationZYX();
+
+            view = shm::SMatrix4x4::mul(rxyz, view);
+        }
+
+        void updateOnlyMatrixRotation() {
+            shm::SMatrix4x4 rx;
+            shm::SMatrix4x4 ry;
+            shm::SMatrix4x4 rz;
+
+            rx.toRotX(rotation.x);
+            ry.toRotY(rotation.y);
+            rz.toRotZ(rotation.z);
+
+            rxyz = shm::SMatrix4x4::mul(rz, shm::SMatrix4x4::mul(ry, rx));
+        }
+
+        void updateOnlyMatrixRotationZYX() {
+            shm::SMatrix4x4 rx;
+            shm::SMatrix4x4 ry;
+            shm::SMatrix4x4 rz;
+
+            rx.toRotX(rotation.x);
+            ry.toRotY(rotation.y);
+            rz.toRotZ(rotation.z);
+
+            rxyz = shm::SMatrix4x4::mul(rx, shm::SMatrix4x4::mul(ry, rz));
         }
         
 
@@ -68,6 +92,21 @@ namespace shm {
 
         shm::SMatrix4x4& getMatrixPosition() {
             return t;
+        }
+
+        shm::SMatrix4x4& getMatrixView() {
+            return view;
+        }
+
+        shm::SMatrix4x4& getMatrixRotation() {
+            return rxyz;
+        }
+
+        const shm::SMatrix4x4& getMatrixNegativePosition() {
+            shm::SMatrix4x4 npos;
+            npos.toTranslate(-position.x, -position.y, -position.z);
+
+            return npos;
         }
 
 
@@ -131,6 +170,12 @@ namespace shm {
 
         const shm::SVec3f& getScale() {
             return scale;
+        }
+
+
+
+        shm::SVec3f& getRotationParam() {
+            return rotation;
         }
     };
 }

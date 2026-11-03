@@ -7,6 +7,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "SVec4f.hpp"
+
 
 
 namespace shm {
@@ -50,8 +52,9 @@ namespace shm {
         void toPerspective() {
             toOne();
 
-            m[10] = 0.03f;
+            m[10] = 0.2f;
             m[11] = 1.0f;
+            m[15] = 0.1f;
         }
 
         void toRotX(float x) {
@@ -128,6 +131,17 @@ namespace shm {
             r.m[11]  =  a.m[3] * b.m[8]  +  a.m[7] * b.m[9]  +  a.m[11] * b.m[10]  +  a.m[15] * b.m[11];
             r.m[15]  =  a.m[3] * b.m[12]  +  a.m[7] * b.m[13]  +  a.m[11] * b.m[14]  +  a.m[15] * b.m[15];
             
+            return r;
+        }
+
+        static shm::SVec4f mul(const shm::SMatrix4x4& a, const shm::SVec4f& v) {
+            shm::SVec4f r;
+
+            r.x = a.m[0] * v.x + a.m[4] * v.y + a.m[8] * v.z + a.m[12] * v.w;
+            r.y = a.m[1] * v.x + a.m[5] * v.y + a.m[9] * v.z + a.m[13] * v.w;
+            r.z = a.m[2] * v.x + a.m[6] * v.y + a.m[10] * v.z + a.m[14] * v.w;
+            r.w = a.m[3] * v.x + a.m[7] * v.y + a.m[11] * v.z + a.m[15] * v.w;
+
             return r;
         }
     };

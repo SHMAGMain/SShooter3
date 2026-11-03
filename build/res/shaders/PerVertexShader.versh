@@ -11,18 +11,19 @@ uniform mat4 model;
 uniform mat4 cam;
 uniform mat4 per;
 uniform mat4 mNormal;
+uniform mat4 view;
 
 out vec3 color;
 
 void main()
 {
-    vec4 v = per * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    vec4 v = per * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
     v.y *= ratio;
 
     vec4 n = mNormal * vec4(aNormal, 1.0f);
     vec3 normal = vec3(n.x, n.y, n.z);
 
-    vec3 lightDir = normalize(vec3(2, 3, 1));
+    vec3 lightDir = normalize(vec3(3, -2, -1));
     float a = dot(lightDir, normal);
 
     gl_Position = v;
