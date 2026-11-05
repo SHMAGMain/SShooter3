@@ -52,9 +52,9 @@ namespace shm {
         void toPerspective() {
             toOne();
 
-            m[10] = 0.2f;
+            m[10] = 0.3f;
             m[11] = 1.0f;
-            m[15] = 0.1f;
+            m[15] = 0.001f;
         }
 
         void toRotX(float x) {
@@ -141,6 +141,16 @@ namespace shm {
             r.y = a.m[1] * v.x + a.m[5] * v.y + a.m[9] * v.z + a.m[13] * v.w;
             r.z = a.m[2] * v.x + a.m[6] * v.y + a.m[10] * v.z + a.m[14] * v.w;
             r.w = a.m[3] * v.x + a.m[7] * v.y + a.m[11] * v.z + a.m[15] * v.w;
+
+            return r;
+        }
+
+        static shm::SVec3f mul(const shm::SMatrix4x4& a, const shm::SVec3f& v) {
+            shm::SVec3f r;
+
+            r.x = a.m[0] * v.x + a.m[4] * v.y + a.m[8] * v.z + a.m[12];
+            r.y = a.m[1] * v.x + a.m[5] * v.y + a.m[9] * v.z + a.m[13];
+            r.z = a.m[2] * v.x + a.m[6] * v.y + a.m[10] * v.z + a.m[14];
 
             return r;
         }

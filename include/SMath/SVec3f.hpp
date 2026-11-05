@@ -43,7 +43,7 @@ namespace shm {
         }
 
 
-        static shm::SVec3f smul(shm::SVec3f v, float f) {
+        static shm::SVec3f smul(const shm::SVec3f& v, float f) {
             return shm::SVec3f(v.x * f, v.y * f, v.z * f);
         }
 
@@ -60,6 +60,10 @@ namespace shm {
             else {
                 return shm::SVec3f();
             }
+        }
+
+        static float getProj(shm::SVec3f& a, shm::SVec3f& b) {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
 

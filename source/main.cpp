@@ -14,6 +14,10 @@
 #include "Meshes/SCube.hpp"
 #include "SMath/STransform.hpp"
 #include "Standard/SCamera.hpp"
+#include "Meshes/SPlane.hpp"
+#include "SPhysics/SPhysicsEngine.hpp"
+#include "SPhysics/SColliderBox.hpp"
+#include "SDebug/SDebug.hpp"
 
 
 
@@ -79,54 +83,43 @@ int main() {
 
 
 
-    int count = 5;
-
-
-    std::vector<shm::SSquare> squares;
-
-    for (size_t i = 0; i < count; i++) {
-        shm::SSquare s;
-        s.assignProgram(shaderProgram);
-        s.transform.setScale(0.01f, 0.01f, 0);
-
-        squares.push_back(s);
-    }
-
-    for (shm::SSquare& square : squares) {
-        square.create();
-
-        square.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
-    }
+    shm::SCamera camera;
 
 
 
-    std::vector<shm::SVec2f> forces(count);
+    dshm::SDebug::init(matrixPerspective, camera, WINDOW_WIDTH / float(WINDOW_HEIGHT));
 
-    std::random_device randev;
-    std::mt19937 gen(randev());
-    std::uniform_real_distribution<float> dist(-0.012f, 0.012f);
-
-    std::uniform_real_distribution<float> dist2(0, 360);
-
-    for (size_t i = 0; i < count; i++) {
-        forces[i] = shm::SVec2f(dist(gen), dist(gen));
-
-        squares[i].transform.addRotation(0, 0, dist2(gen));
-        squares[i].transform.addPosition(dist(gen) * 0.5f, dist(gen) * 0.5f, 0);
-    }
 
 
     shm::SCube cube;
     cube.assignProgram(shaderProgram);
     cube.create();
     cube.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
-    cube.transform.setScale(0.1f, 0.1f, 0.1f);
+    cube.transform.setScale(0.03f, 0.03f, 0.03f);
+    cube.transform.setPosition(0.1f, -0.06, 0.15f);
+    //cube.transform.parent = &camera.transform;
 
-    float t = 0;
+    shm::SCube cube2;
+    cube2.assignProgram(shaderProgram);
+    cube2.create();
+    cube2.setColor(shm::SVec3f(0.6f, 1.0f, 1.0f));
+    cube2.transform.setScale(0.03f, 0.03f, 0.03f);
+    cube2.transform.setPosition(0.1f, 0.06, 0.15f);
+    cube2.transform.parent = &cube.transform;
 
+    shm::SCube cube3;
+    cube3.assignProgram(shaderProgram);
+    cube3.create();
+    cube3.setColor(shm::SVec3f(1.0f, 0.6f, 1.0f));
+    cube3.transform.setScale(0.03f, 0.03f, 0.03f);
+    cube3.transform.setPosition(0.1f, 0.12, 0.15f);
+    cube3.transform.parent = &cube2.transform;
 
-
-    shm::SCamera camera;
+    shm::SPlane plane;
+    plane.assignProgram(shaderProgram);
+    plane.create();
+    plane.setColor(shm::SVec3f(1.0f, 1.0f, 1.0f));
+    plane.transform.setScale(2, 0, 2);
 
 
 
@@ -142,35 +135,28 @@ int main() {
 
 
 
-        if (glfwGetKey(window.get(), GLFW_KEY_UP)) camera.transform.addRotation(1, 0, 0);
-        if (glfwGetKey(window.get(), GLFW_KEY_DOWN)) camera.transform.addRotation(-1, 0, 0);
-        if (glfwGetKey(window.get(), GLFW_KEY_RIGHT)) camera.transform.addRotation(0, 1, 0);
-        if (glfwGetKey(window.get(), GLFW_KEY_LEFT)) camera.transform.addRotation(0, -1, 0);
-
+        camera.transform.updateMatrixes();
         camera.updateController(window);
 
         glUseProgram(shaderProgram.getId());
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getId(), "view"), 1, GL_FALSE, camera.transform.getMatrixView().getData());
 
 
-
-        /*for (size_t i = 0; i < count; i++) {
-            squares[i].transform.addPosition(shm::SVec3f(forces[i].x, forces[i].y, 0));
-            forces[i].x *= 0.98f;
-            forces[i].y *= 0.98f;
-
-            squares[i].transform.addRotation(0, 0, std::sqrt(forces[i].x * forces[i].x + forces[i].y * forces[i].y) * 200);
-
-            squares[i].updateMatrixModel();
-
-            squares[i].draw();
-        }*/
-
-        t += 0.05f;
-        //cube.transform.addPosition(std::cos(t) * 0.008f, 0, 0);
-        //cube.transform.addRotation(1, 1, 1);
+        cube.transform.addRotation(1, 1, 1);
         cube.updateMatrixes();
         cube.draw();
+
+        cube2.updateMatrixes();
+        cube2.draw();
+
+        cube3.updateMatrixes();
+        cube3.draw();
+
+
+        plane.updateMatrixes();
+        //plane.draw();
+
+        dshm::SDebug::drawBox(cube3.transform.getPosition(), cube3.transform.getRotation(), cube3.transform.getScale(), shm::SVec3f(1.0f, 1.0f, 1.0f));
 
 
 

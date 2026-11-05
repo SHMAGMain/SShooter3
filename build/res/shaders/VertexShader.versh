@@ -1,19 +1,21 @@
 #version 330 core
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
 
 uniform float ratio;
-uniform vec2 winSize;
+uniform vec3 ucolor;
+
 uniform mat4 model;
+uniform mat4 view;
+uniform mat4 per;
 
 out vec3 color;
 
 void main()
 {
-    vec4 v = model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    vec4 v = per * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
     v.y *= ratio;
 
     gl_Position = v;
-    color = aColor;
+    color = ucolor;
 }

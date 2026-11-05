@@ -24,6 +24,10 @@ namespace shm {
 
         public:
 
+        shm::STransform* parent = nullptr;
+
+
+
         STransform() {}
 
         STransform(const shm::SVec3f& position) : position(position) {}
@@ -41,8 +45,46 @@ namespace shm {
 
             updateOnlyMatrixRotation();
 
-            model = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s));
-            normal = rxyz;
+            if (parent != nullptr && parent->parent == nullptr) {
+                shm::SVec3f& prot = parent->getRotationParam();
+
+                shm::SMatrix4x4 rx;
+                shm::SMatrix4x4 ry;
+                shm::SMatrix4x4 rz;
+
+                rx.toRotX(prot.x);
+                ry.toRotY(prot.y);
+                rz.toRotZ(prot.z);
+
+
+                shm::SMatrix4x4 rp = shm::SMatrix4x4::mul(rz, shm::SMatrix4x4::mul(ry, rx));
+
+                shm::SMatrix4x4& tp = parent->getMatrixPosition();
+
+
+                model = shm::SMatrix4x4::mul(tp, shm::SMatrix4x4::mul(rp, shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s))));
+                normal = shm::SMatrix4x4::mul(rp, rxyz);
+
+                t = tp;
+                rxyz = rp;
+            }
+            else if (parent != nullptr && parent->parent != nullptr) {
+                shm::STransform* p = parent;
+
+                shm::SMatrix4x4 stand = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s));
+                model = 
+
+                while (p != nullptr) {
+                    model =
+
+
+                    p = p->parent;
+                }
+            }
+            else {
+                model = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(rxyz, s));
+                normal = rxyz;
+            }
         }
 
         void updateOnlyMatrixPosition() {

@@ -15,7 +15,6 @@ namespace shm {
     class SCube : public shm::SMesh {
         private:
 
-
         public:
 
         void create() override {
