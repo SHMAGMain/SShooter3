@@ -14,7 +14,7 @@ namespace shm {
     class SColliderBox : public shm::SCollider {
         public:
 
-        std::vector<shm::SVec3f> vertices{8};
+        std::vector<shm::SVec4f> vertices{8};
 
 
 
@@ -25,28 +25,33 @@ namespace shm {
         }
 
         void update() override {
-            vertices[0] = shm::SVec3f{-0.5f, -0.5f, -0.5f};
-            vertices[1] = shm::SVec3f{-0.5f, 0.5f, -0.5f};
-            vertices[2] = shm::SVec3f{0.5f, 0.5f, -0.5f};
-            vertices[3] = shm::SVec3f{0.5f, -0.5f, -0.5f};
-            vertices[4] = shm::SVec3f{-0.5f, -0.5f, 0.5f};
-            vertices[5] = shm::SVec3f{-0.5f, 0.5f, 0.5f};
-            vertices[6] = shm::SVec3f{0.5f, 0.5f, 0.5f};
-            vertices[7] = shm::SVec3f{0.5f, -0.5f, 0.5f};
+            vertices[0] = shm::SVec4f{-1, -1, -1, 1};
+            vertices[1] = shm::SVec4f{-1, 1, -1, 1};
+            vertices[2] = shm::SVec4f{1, 1, -1, 1};
+            vertices[3] = shm::SVec4f{1, -1, -1, 1};
+            vertices[4] = shm::SVec4f{-1, -1, 1, 1};
+            vertices[5] = shm::SVec4f{-1, 1, 1, 1};
+            vertices[6] = shm::SVec4f{1, 1, 1, 1};
+            vertices[7] = shm::SVec4f{1, -1, 1, 1};
 
 
 
             const shm::SVec3f& scale = transform->getScale();
-            shm::SMatrix4x4 rt = transform->getMatrixRotation();
+            shm::SMatrix4x4& r = transform->getMatrixRotation();
+            shm::SMatrix4x4& t = transform->getMatrixPosition();
             
-            for (shm::SVec3f& v : vertices) {
-                v.x *= scale.x;
-                v.y *= scale.y;
-                v.z *= scale.z;
+            for (size_t i = 0; i < 8; i++) {
+                vertices[i].x *= scale.x;
+                vertices[i].y *= scale.y;
+                vertices[i].z *= scale.z;
 
-                v = shm::SMatrix4x4::mul(rt, v);
+                vertices[i] = shm::SMatrix4x4::mul(t, shm::SMatrix4x4::mul(r, vertices[i]));
             }
         }
+
+
+
+        virtual ~SColliderBox() {}
     };
 }
 

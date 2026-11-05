@@ -20,12 +20,16 @@ void main()
     vec4 v = per * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
     v.y *= ratio;
 
+    gl_Position = v;
+
+
     vec4 n = mNormal * vec4(aNormal, 1.0f);
     vec3 normal = vec3(n.x, n.y, n.z);
 
     vec3 lightDir = normalize(vec3(3, -2, -1));
-    float a = dot(lightDir, normal);
+    float a = dot(lightDir, normal) * 0.5;
 
-    gl_Position = v;
-    color = clamp(aColor * a, 0, 1);
+    vec3 amb = aColor * 0.8;
+
+    color = amb + (aColor * a);
 }

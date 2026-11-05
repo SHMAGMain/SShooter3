@@ -3,7 +3,20 @@
 
 
 bool shm::SPhysicsEngine::isAxesCollision(float p0, float p1, float q0, float q1) {
+    if (p0 == q0 && p1 == q1) return true;
     return (q0 < p1 && q1 > p1) || (p0 < q1 && p1 > q1);
+}
+
+float shm::SPhysicsEngine::getAxesCollision(float p0, float p1, float q0, float q1) {
+    if (p0 == q0 && p1 == q1) {
+        return p1 - p0;
+    }
+    else if (p1 > q1) {
+        return q1 - p0;
+    }
+    else {
+        return p1 - q0;
+    }
 }
 
 
@@ -13,43 +26,60 @@ bool shm::SPhysicsEngine::checkCollisionBB(shm::SColliderBox& b1, shm::SCollider
     shm::SVec3f axisY(0, 1.0f, 0);
     shm::SVec3f axisZ(0, 0, 1.0f);
 
-    std::vector<shm::SVec3f> b1as{3}; // box1 axes
-    std::vector<shm::SVec3f> b2as{3}; // box2 axes
+    std::vector<shm::SVec3f> b1as{3};
+    std::vector<shm::SVec3f> b2as{3};
 
     b1as[0] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisX);
     b1as[1] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisY);
     b1as[2] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisZ);
 
-    b2as[0] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisX);
-    b2as[1] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisY);
-    b2as[2] = shm::SMatrix4x4::mul(b1.transform->getMatrixRotation(), axisZ);
+    b2as[0] = shm::SMatrix4x4::mul(b2.transform->getMatrixRotation(), axisX);
+    b2as[1] = shm::SMatrix4x4::mul(b2.transform->getMatrixRotation(), axisY);
+    b2as[2] = shm::SMatrix4x4::mul(b2.transform->getMatrixRotation(), axisZ);
 
-    std::vector<float> b1mm{12}; // box1 min max
-    std::vector<float> b2mm{12}; // box2 min max
+    std::vector<float> b1mm;
+    std::vector<float> b2mm;
+    b1mm.resize(12);
+    b2mm.resize(12);
 
     for (size_t i = 0; i < 6; i++) {
-        shm::SVec3f* axis;
+        shm::SVec3f* axis = nullptr;
+        
         if (i >= 3) axis = &b2as[i - 3];
         else axis = &b1as[i];
 
-        for (size_t k = 0; k < 12; k++) {
-            float proj = shm::SVec3f::getProj(b1.vertices[k], *axis);
+        float pr1 = shm::SVec3f::getProj(b1.vertices[0].to3NoW(), *axis);
+        float pr2 = shm::SVec3f::getProj(b2.vertices[0].to3NoW(), *axis);
 
-            if (proj > b1mm[i * 2 + 1]) b1mm[i * 2 + 1] = proj;
-            else if (proj < b1mm[i * 2]) b1mm[i * 2] = proj;
-        }
+        b1mm[i * 2] = pr1;
+        b1mm[i * 2 + 1] = pr1;
+        b2mm[i * 2] = pr2;
+        b2mm[i * 2 + 1] = pr2;
     }
 
     for (size_t i = 0; i < 6; i++) {
-        shm::SVec3f* axis;
+        shm::SVec3f* axis = nullptr;
+        
         if (i >= 3) axis = &b2as[i - 3];
-        else axis = &b2as[i];
+        else axis = &b1as[i];
 
-        for (size_t k = 0; k < 12; k++) {
-            float proj = shm::SVec3f::getProj(b1.vertices[k], *axis);
+        for (size_t k = 0; k < 8; k++) {
+            shm::SVec4f* v4 = &b1.vertices[k];
+            shm::SVec3f v3 = v4->to3NoW();
 
-            if (proj > b2mm[i * 2 + 1]) b2mm[i * 2 + 1] = proj;
-            else if (proj < b2mm[i * 2]) b2mm[i * 2] = proj;
+            float proj = shm::SVec3f::getProj(v3, *axis);
+
+            if (proj < b1mm[i * 2]) b1mm[i * 2] = proj;
+            else if (proj > b1mm[i * 2 + 1]) b1mm[i * 2 + 1] = proj;
+
+
+            v4 = &b2.vertices[k];
+            v3 = v4->to3NoW();
+
+            proj = shm::SVec3f::getProj(v3, *axis);
+
+            if (proj < b2mm[i * 2]) b2mm[i * 2] = proj;
+            else if (proj > b2mm[i * 2 + 1]) b2mm[i * 2 + 1] = proj;
         }
     }
 
@@ -61,9 +91,43 @@ bool shm::SPhysicsEngine::checkCollisionBB(shm::SColliderBox& b1, shm::SCollider
         float& q0 = b2mm[i * 2];
         float& q1 = b2mm[i * 2 + 1];
 
-        if (!isAxesCollision(p0, p1, q0, q1)) {
+        if (!shm::SPhysicsEngine::isAxesCollision(p0, p1, q0, q1)) {
             isCollision = false;
             break;
+        }
+    }
+
+    if (isCollision) {
+        float minCollision = shm::SPhysicsEngine::getAxesCollision(b1mm[0], b1mm[1], b2mm[0], b2mm[1]);
+        shm::SVec3f* axis = &b1as[0];
+        int indexAxis = 0;
+
+        for (size_t i = 1; i < 6; i++) {
+            float col = shm::SPhysicsEngine::getAxesCollision(b1mm[i * 2], b1mm[i * 2 + 1], b2mm[i * 2], b2mm[i * 2 + 1]);
+
+            if (col < minCollision) {
+                minCollision = col;
+                indexAxis = i;
+                
+                if (i >= 3) axis = &b2as[i - 3];
+                else axis = &b1as[i];
+            }
+        }
+
+        if (!b1.isStatic && !b2.isStatic) minCollision *= 0.5f;
+
+        if (!b1.isStatic && b1mm[indexAxis * 2] < b2mm[indexAxis * 2]) {
+            b1.transform->addPosition(shm::SVec3f::smul(*axis, -minCollision));
+        }
+        else {
+            b1.transform->addPosition(shm::SVec3f::smul(*axis, minCollision));
+        }
+
+        if (!b2.isStatic && b2mm[indexAxis * 2] < b1mm[indexAxis * 2]) {
+            b2.transform->addPosition(shm::SVec3f::smul(*axis, -minCollision));
+        }
+        else {
+            b2.transform->addPosition(shm::SVec3f::smul(*axis, minCollision));
         }
     }
 

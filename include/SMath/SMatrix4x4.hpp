@@ -40,6 +40,14 @@ namespace shm {
             m[14] = z;
         }
 
+        void toTranslate(const shm::SVec3f& v) {
+            toOne();
+
+            m[12] = v.x;
+            m[13] = v.y;
+            m[14] = v.z;
+        }
+
         void toScale(float x, float y, float z) {
             toZero();
 

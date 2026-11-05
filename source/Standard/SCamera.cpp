@@ -22,9 +22,6 @@ void shm::SCamera::updateController(shm::SWindow& window) {
     forward = shm::SMatrix4x4::mul(mr, forward);
     right = shm::SMatrix4x4::mul(mr, right);
 
-    forward.x *= 1;
-    right.z *= 1;
-
 
     shm::SVec3f inputDirect;
 

@@ -19,7 +19,7 @@ namespace shm {
     class SCamera : public shm::SObject {
         private:
 
-        float moveSpeed = 0.04f;
+        float moveSpeed = 0.01f;
         float rotateSpeed = 0.04f;
 
 

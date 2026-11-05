@@ -3,6 +3,8 @@
 
 
 
+#include "GL/glew.h"
+
 #include "SColliderBox.hpp"
 #include "../SMath/SMatrix4x4.hpp"
 
@@ -12,11 +14,13 @@ namespace shm {
     class SPhysicsEngine {
         private:
 
-        bool isAxesCollision(float p0, float p1, float q0, float q1);
+        static bool isAxesCollision(float p0, float p1, float q0, float q1);
+
+        static float getAxesCollision(float p0, float p1, float q0, float q1);
 
         public:
 
-        bool checkCollisionBB(shm::SColliderBox& b1, shm::SColliderBox& b2);
+        static bool checkCollisionBB(shm::SColliderBox& b1, shm::SColliderBox& b2);
     };
 }
 

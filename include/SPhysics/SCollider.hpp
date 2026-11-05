@@ -21,6 +21,8 @@ namespace shm {
 
         shm::STransform* transform = nullptr;
 
+        bool isStatic = false;
+
 
 
         virtual void update() {}

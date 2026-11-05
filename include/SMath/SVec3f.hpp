@@ -62,7 +62,7 @@ namespace shm {
             }
         }
 
-        static float getProj(shm::SVec3f& a, shm::SVec3f& b) {
+        static float getProj(const shm::SVec3f& a, const shm::SVec3f& b) {
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
