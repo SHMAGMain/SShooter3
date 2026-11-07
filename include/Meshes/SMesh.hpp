@@ -50,8 +50,13 @@ namespace shm {
 
         void draw() override {
             shaderProgram->use();
+
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram->getId(), "model"), 1, GL_FALSE, transform.getMatrixModel().getData());
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram->getId(), "mNormal"), 1, GL_FALSE, transform.getMatrixNormal().getData());
+
             glBindVertexArray(VAO.getId());
             glDrawArrays(GL_TRIANGLES, 0, data.size() / 9);
+            glBindVertexArray(0);
         }
 
 

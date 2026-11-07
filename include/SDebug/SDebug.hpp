@@ -35,6 +35,7 @@ namespace dshm {
 
 
         static std::vector<float> dataBox;
+        static std::vector<float> dataRay;
 
         public:
 
@@ -125,32 +126,43 @@ namespace dshm {
 
             glEnable(GL_DEPTH_TEST);
         }
-    };
 
-    shm::SVAO dshm::SDebug::vaoLines;
-    shm::SVBO dshm::SDebug::vboLines;
+        static void drawRay(const shm::SVec3f& position, const shm::SVec3f& rotation, float length, const shm::SVec3f direct, const shm::SVec3f& color) {
+            //glDisable(GL_DEPTH_TEST);
 
-    shm::SShaderProgram dshm::SDebug::shaderProgram;
+            dataRay[3] = direct.x * length;
+            dataRay[4] = direct.y * length;
+            dataRay[5] = direct.z * length;
 
-    shm::SMatrix4x4* dshm::SDebug::per = nullptr;
-    shm::SCamera* dshm::SDebug::camera = nullptr;
+            shm::SMatrix4x4 t;
+            t.toTranslate(position.x, position.y, position.z);
 
-    std::string dshm::SDebug::pathVertexShaderSource = "res/shaders/VertexShader.versh";
-    std::string dshm::SDebug::pathFragmentShaderSource = "res/shaders/FragmentShader.frash";
+            shm::SMatrix4x4 rx;
+            shm::SMatrix4x4 ry;
+            shm::SMatrix4x4 rz;
 
-    std::vector<float> dshm::SDebug::dataBox = std::vector<float>{
-        -1, -1, -1, 1, -1, -1,
-        1, -1, -1, 1, 1, -1,
-        1, 1, -1, -1, 1, -1,
-        -1, 1, -1, -1, -1, -1,
-        -1, -1, 1, 1, -1, 1, 
-        1, -1, 1, 1, 1, 1,
-        1, 1, 1, -1, 1, 1,
-        -1, 1, 1, -1, -1, 1,
-        -1, -1, 1, -1, -1, -1,
-        -1, 1, 1, -1, 1, -1,
-        1, -1, 1, 1, -1, -1,
-        1, 1, 1, 1, 1, -1
+            rx.toRotX(0);
+            ry.toRotY(0);
+            rz.toRotZ(0);
+
+            shm::SMatrix4x4 rxyz = shm::SMatrix4x4::mul(rz, shm::SMatrix4x4::mul(ry, rx));
+            shm::SMatrix4x4 model = shm::SMatrix4x4::mul(t, rxyz);
+
+            shaderProgram.use();
+            glUniform3f(glGetUniformLocation(shaderProgram.getId(), "ucolor"), color.x, color.y, color.z);
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getId(), "model"), 1, GL_FALSE, model.getData());
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getId(), "view"), 1, GL_FALSE, camera->transform.getMatrixView().getData());
+
+
+            glBindVertexArray(vaoLines.getId());
+            glBindBuffer(GL_ARRAY_BUFFER, vboLines.getId());
+
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * dataRay.size(), dataRay.data(), GL_DYNAMIC_DRAW);
+
+            //glDrawArrays(GL_LINES, 0, dataBox.size());
+
+            //glEnable(GL_DEPTH_TEST);
+        }
     };
 }
 

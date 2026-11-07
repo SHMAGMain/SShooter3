@@ -95,15 +95,22 @@ int main() {
     cube.assignProgram(shaderProgram);
     cube.create();
     cube.setColor(shm::SVec3f(1.0f, 1.0f, 0.6f));
-    cube.transform.setScale(0.03f, 0.03f, 0.03f);
+    cube.transform.setScale(0.03f, 0.05f, 0.04f);
     cube.transform.setPosition(0, -0.06, 0);
 
     shm::SCube cube2;
     cube2.assignProgram(shaderProgram);
     cube2.create();
     cube2.setColor(shm::SVec3f(0.6f, 1.0f, 1.0f));
-    cube2.transform.setScale(0.09f, 0.03f, 0.04f);
+    cube2.transform.setScale(0.09f, 0.03f, 0.08f);
     cube2.transform.setPosition(0, 0.06, 0);
+
+    shm::SCube cube3;
+    cube3.assignProgram(shaderProgram);
+    cube3.create();
+    cube3.setColor(shm::SVec3f(0.6f, 1.0f, 1.0f));
+    cube3.transform.setScale(0.09f, 0.03f, 0.04f);
+    cube3.transform.setPosition(0.2, 0.06, 0);
 
 
 
@@ -111,8 +118,19 @@ int main() {
 
     shm::SColliderBox box1;
     shm::SColliderBox box2;
+    shm::SColliderBox box3;
+    box2.isStatic = true;
+    box3.isStatic = true;
     box1.create(cube.transform);
     box2.create(cube2.transform);
+    box3.create(cube3.transform);
+
+    for (int i = 0; i < 8; i++) {
+    auto& v = box3.vertices[i];
+
+    printf("%d: %.5f %.5f %.5f\n",
+        i, v.x, v.y, v.z);
+}
 
     while (!glfwWindowShouldClose(window.get()) && !isWindowClosed) {
         glClearColor(0.1f, 0.1f, 0.08f, 1.0f);
@@ -124,7 +142,7 @@ int main() {
 
 
 
-        camera.transform.updateMatrixes();
+        //camera.transform.setPosition(cube.transform.getPosition());
         camera.updateController(window);
 
         glUseProgram(shaderProgram.getId());
@@ -141,27 +159,37 @@ int main() {
         if (glfwGetKey(window.get(), GLFW_KEY_Q)) cube.transform.addRotation(0, 0, -1);
 
 
+        cube.updateMatrixes();
+        cube2.updateMatrixes();
+        cube3.updateMatrixes();
+
         box1.update();
         box2.update();
+        box3.update();  
 
 
-        if (shm::SPhysicsEngine::checkCollisionBB(box1, box2)) {
-            std::cout << "True" << std::endl;
-        }
-        else {
-            std::cout << "False" << std::endl;
-        }
+        shm::SPhysicsEngine::checkCollisionBB(box1, box2);
+        shm::SPhysicsEngine::checkCollisionBB(box1, box3);
+        shm::SPhysicsEngine::checkCollisionBB(box2, box3);
 
 
-        cube.updateMatrixes();
+        if (glfwGetKey(window.get(), GLFW_KEY_R)) cube3.transform.addRotation(0.06f, 0, 0);
+        if (glfwGetKey(window.get(), GLFW_KEY_T)) cube3.transform.addRotation(0, 0.06f, 0);
+        if (glfwGetKey(window.get(), GLFW_KEY_Y)) cube3.transform.addRotation(0, 0, 0.06f);
+ 
+
         cube.draw();
-        cube2.updateMatrixes();
         cube2.draw();
+        cube3.draw();
 
 
+        box1.debug(shm::SVec3f(1, 0, 0));
+        box2.debug(shm::SVec3f(0, 1, 0));
+        box3.debug(shm::SVec3f(0, 0, 1));
 
-        //dshm::SDebug::drawBox(cube.transform.getPosition(), cube.transform.getRotation(), cube.transform.getScale(), shm::SVec3f(1, 0, 0));
-        //dshm::SDebug::drawBox(cube2.transform.getPosition(), cube2.transform.getRotation(), cube2.transform.getScale(), shm::SVec3f(0, 1, 0));
+        //dshm::SDebug::drawBox(box1.transform->getPosition(), box1.transform->getRotation(), box1.transform->getScale(), shm::SVec3f(1, 0, 0));
+        //dshm::SDebug::drawBox(box3.transform->getPosition(), box3.transform->getRotation(), box3.transform->getScale(), shm::SVec3f(0, 1, 0));
+        
 
 
         glfwSwapBuffers(window.get());

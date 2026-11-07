@@ -27,7 +27,7 @@ void main()
     vec3 normal = vec3(n.x, n.y, n.z);
 
     vec3 lightDir = normalize(vec3(3, -2, -1));
-    float a = dot(lightDir, normal) * 0.5;
+    float a = dot(lightDir, normal) * 0.3;
 
     vec3 amb = aColor * 0.8;
 

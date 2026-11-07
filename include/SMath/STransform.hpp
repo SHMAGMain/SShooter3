@@ -21,6 +21,7 @@ namespace shm {
         shm::SMatrix4x4 rxyz;
         shm::SMatrix4x4 normal;
         shm::SMatrix4x4 view;
+        shm::SMatrix4x4 s;
 
         public:
 
@@ -38,8 +39,6 @@ namespace shm {
 
 
         void updateMatrixes() {
-            shm::SMatrix4x4 s;
-
             t.toTranslate(position.x, position.y, position.z);
             s.toScale(scale.x * 2.0f, scale.y * 2.0f, scale.z * 2.0f);
 
@@ -142,6 +141,11 @@ namespace shm {
         shm::SMatrix4x4& getMatrixRotation() {
             return rxyz;
         }
+
+        shm::SMatrix4x4& getMatrixScale() {
+            return s;
+        }
+
 
         const shm::SMatrix4x4& getMatrixNegativePosition() {
             shm::SMatrix4x4 npos;

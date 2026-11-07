@@ -7,12 +7,20 @@
 
 #include "SColliderBox.hpp"
 #include "../SMath/SMatrix4x4.hpp"
+#include "../SDebug/SDebug.hpp"
+#include "SBody.hpp"
 
 
 
 namespace shm {
     class SPhysicsEngine {
         private:
+
+        float gravityForce = 0.09f;
+
+        std::vector<shm::SBody*> bodyes;
+
+
 
         static bool isAxesCollision(float p0, float p1, float q0, float q1);
 

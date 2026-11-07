@@ -51,6 +51,14 @@ namespace shm {
             return shm::SVec3f(a.x + b.x, a.y + b.y, a.z + b.z);
         }
 
+        static shm::SVec3f sred(const shm::SVec3f& a, const shm::SVec3f& b) {
+            return shm::SVec3f(a.x - b.x, a.y - b.y, a.z - b.z);
+        }
+
+        static shm::SVec3f scross(const shm::SVec3f& a, const shm::SVec3f& b) {
+            return shm::SVec3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+        }
+
         
         static shm::SVec3f getNormalize(const shm::SVec3f& v) {
             float m = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);

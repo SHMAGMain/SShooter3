@@ -27,6 +27,8 @@ namespace shm {
 
         virtual void update() {}
 
+        virtual void debug(const shm::SVec3f& color) {}
+
 
 
         virtual ~SCollider() {}
